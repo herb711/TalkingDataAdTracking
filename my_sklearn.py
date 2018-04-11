@@ -6,8 +6,9 @@ import sklearn.preprocessing as preprocessing
 from sklearn import linear_model
 from sklearn import svm
 from sklearn.utils.multiclass import _check_partial_fit_first_call
-import pickle
+from sklearn.linear_model import SGDClassifier
 from sklearn.externals import joblib
+import numpy as np
 
 class modle(object):
     def __init__(self, modle_n=0):
@@ -16,6 +17,8 @@ class modle(object):
             self.clf = svm.SVC()
         elif modle_n == 1:
             self.clf = linear_model.LogisticRegression(C=1.0, penalty='l1', tol=1e-6)
+        elif modle_n == 2: #随机梯度下降
+            self.clf = SGDClassifier()  # SGDClassifier的参数设置可以参考sklearn官网
         '''
         clf = svm.SVC(C=1.0, cache_size=200, class_weight=None,
             coef0=0.0, decision_function_shape=None,
@@ -24,14 +27,19 @@ class modle(object):
             random_state=None, shrinking=True,
             tol=0.001, verbose=False)
         ''' 
-    def train(self, X, y, n=0):
-        if n==0:
-            #训练模型
-            self.clf.fit(X,y) 
-        else:
-            #分批训练模型
-            print("train...{0}".format(n))
-            self.clf.partial_fit(X, y)
+    def train(self, X, y):
+        self.clf.fit(X,y) 
+        self.out_clf()
+
+    def train_batch(self, X, y, m=2, n=0):
+        if m == 0: #支持向量机 
+            pass
+        elif m == 1:
+            pass
+        elif m == 2: #随机梯度下降
+            # 使用 partial_fit ，并在第一次调用 partial_fit 的时候指定 classes
+            self.clf.partial_fit(X, y, classes=np.array([0, 1]))
+        print("train...{0}".format(n))  # 当前次数       
         self.out_clf()
         
     def in_clf(self):

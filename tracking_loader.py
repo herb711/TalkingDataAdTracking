@@ -17,8 +17,8 @@ import numpy as np
 import sklearn.preprocessing as preprocessing
 import csv  
 
-def load_train_data(m=0,n=0):# csv训练数据读取
-    df = load('TalkingDataAdTracking/data/train_sample.csv',m,n)
+def load_train_data(t,n=0):# csv训练数据读取
+    df = load(t,n)
     #做数据清理
     train_data = data_wrapper(df)
     #将特征值取出并转换为矩阵
@@ -32,8 +32,8 @@ def load_train_data(m=0,n=0):# csv训练数据读取
     trd_X = train_np[:, 1:]
     return trd_X, trd_y
 
-def load_test_data(m=0,n=0):# csv数据读取竞赛数据
-    df = load('G:/TalkingDataAdTracking/test.csv',m,n)
+def load_test_data(t,n=0):# csv数据读取竞赛数据
+    df = load(t,n)
     #做数据清理
     test_data = data_wrapper(df)
     #将特征值取出
@@ -85,7 +85,7 @@ def data_wrapper(df):
     df['minute_scaled'] = scaler.fit_transform(df['minute'].values.reshape(-1,1), scale_param) 
     return df
 
-def load(t,m,n):
+def load(t,n):
     if n == 0: #一次全部读取
         df = pd.read_csv(t) #读取数据
     elif n == -1: #分次全部读取数据，应用于较大数据
@@ -94,7 +94,7 @@ def load(t,m,n):
         loop = True
         chunkSize = 100000 #读取数据长度
         chunks = []
-        i = 0
+        i = 1
         while loop:
             try:
                 chunk = reader.get_chunk(chunkSize)
@@ -109,7 +109,7 @@ def load(t,m,n):
         f = open(t)
         reader = pd.read_csv(f, sep=',', iterator=True)
         loop = True
-        chunkSize = 100000 #读取数据长度
+        chunkSize = 10000 #读取数据长度
         chunks = []
         while loop:
             try:
@@ -128,6 +128,26 @@ def load(t,m,n):
 def save_data(X, y):
     result = pd.DataFrame({'click_id':y.astype(np.int), 'is_attributed':X.astype(np.int32)})
     result.to_csv("TalkingDataAdTracking/data/result.csv", index=False)
+
+def split_csvfile(filename):
+    name = filename.split('.')[0]
+    f = open(filename)
+    reader = pd.read_csv(f, sep=',', iterator=True)
+    loop = True
+    chunkSize = 10000 #读取数据长度
+    i = 0
+    while loop:
+        try:
+            print("save...{0}".format(i))
+            chunk = reader.get_chunk(chunkSize)
+            outname = name + str(i) + '.csv'
+            chunk.to_csv(outname, index=False)
+            i = i+1 
+        except StopIteration:
+            loop = False
+            print("Iteration is stopped.")
+
+#split_csvfile('TalkingDataAdTracking/data/train_sample.csv')
 
 def save_error(X):
     with open('Titanic/data/error.csv',"w") as csvfile: 
