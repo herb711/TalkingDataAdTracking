@@ -2,40 +2,25 @@
 #### Libraries
 import tracking_loader
 import network
+import my_sklearn
 from sklearn.model_selection import train_test_split
-from sklearn import cross_validation
-import LogisticRegression
-from sklearn import svm
 
 # 将数据集拆分成两个集合：训练集、测试集
 trd_X, trd_y, test_X, test_y = tracking_loader.load_data_wrapper()
 #对训练集进行拆分
 trd_X0, trd_X1, trd_y0, trd_y1 = train_test_split(trd_X, trd_y, test_size=0.30, random_state=11) #将训练数据分成训练和验证
 
-
-#建立SVM模型
-svc = svm.SVC()
-svc.fit(trd_X0,trd_y0) #训练模型
-#print(svc.score(trd_X1, trd_y1))
-#print(cross_validation.cross_val_score(svc, trd_X, trd_y, cv=5))
+svc = my_sklearn.modle(trd_X0, trd_y0)
+svc.evaluate(trd_X1, trd_y1)
 result_svc = svc.predict(test_X)
 tracking_loader.save_data(result_svc, test_y) #保存结果
 
-'''
-clf = svm.SVC(C=1.0, cache_size=200, class_weight=None,
-    coef0=0.0, decision_function_shape=None,
-    degree=3, gamma='auto', kernel='rbf',
-    max_iter=-1, probability=False,
-    random_state=None, shrinking=True,
-    tol=0.001, verbose=False)
-'''
 
 '''
 #生成逻辑回归对象 并生成模型
-reg = LogisticRegression.Regression(trd_X0, trd_y0)
-print('logistic',reg.evaluate2(trd_X1, trd_y1))
-reg = LogisticRegression.Regression(trd_X, trd_y)
-print(reg.evaluate(trd_X, trd_y))
+reg = my_sklearn.modle(trd_X0, trd_y0, 1)
+reg.evaluate(trd_X1, trd_y1)
+reg.evaluate2(trd_X, trd_y)
 result1 = reg.predict(test_X)
 #titanic_loader.save_data(result1, test_y) #保存结果
 

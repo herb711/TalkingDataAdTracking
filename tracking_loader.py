@@ -18,11 +18,44 @@ import sklearn.preprocessing as preprocessing
 import csv  
  
 
-def load_data(s):# csv数据读取
+def load_data(s,n=0):# csv数据读取
     if s == 0:
-        df = pd.read_csv('TalkingDataAdTracking/data/train_sample.csv') #读取训练数据
+        t = 'TalkingDataAdTracking/data/train_sample.csv' #读取训练数据
     else:
-        df = pd.read_csv('TalkingDataAdTracking/data/test.csv') #读取竞赛数据
+        t = 'TalkingDataAdTracking/data/test.csv' #读取竞赛数据
+
+    if n == 0: #一次全部读取
+        df = pd.read_csv(t) #读取数据
+    elif n == -1: #分次读取数据，应用于较大数据
+        f = open(t)
+        reader = pd.read_csv(f, sep=',', iterator=True)
+        loop = True
+        chunkSize = 100000 #读取数据长度
+        chunks = []
+        while loop:
+            try:
+                chunk = reader.get_chunk(chunkSize)
+                chunks.append(chunk)
+            except StopIteration:
+                loop = False
+                print("Iteration is stopped.")
+        df = pd.concat(chunks, ignore_index=True)
+    else: #只读取数据的一部分
+        reader = pd.read_csv(f, sep=',', iterator=True)
+        loop = True
+        chunkSize = 100000 #读取数据长度
+        chunks = []
+        while loop:
+            try:
+                chunk = reader.get_chunk(chunkSize)
+                chunks.append(chunk)
+                n = n -1
+                if n<=0:
+                    break
+            except StopIteration:
+                loop = False
+                print("Iteration is stopped.")
+        df = pd.concat(chunks, ignore_index=True)
 
     #时间转换
     df['click_time'] = pd.to_datetime(df['click_time'])
@@ -77,12 +110,12 @@ def load_data_wrapper():
     trd_X = train_np[:, 1:]
 
     #读取竞赛数据
-    test_data = load_data(0)
+    test_data = load_data(1,-1)
     #将特征值取出
     test_df = test_data.filter(regex='is_attributed|ip_scaled|app_scaled|device_scaled|os_scaled|channel_scaled|day_scaled|hour_scaled|minute_scaled')
     test_np = test_df.as_matrix()
     # y即Id
-    test_y = test_data['is_attributed'].as_matrix()
+    test_y = test_data['click_id'].as_matrix()
     # X即特征属性值
     test_X = test_np
 
