@@ -6,11 +6,14 @@ import my_sklearn
 from sklearn.model_selection import train_test_split
 
 # 将数据集拆分成两个集合：训练集、测试集
-trd_X, trd_y, test_X, test_y = tracking_loader.load_data_wrapper()
+trd_X, trd_y = tracking_loader.load_train_data()
+test_X, test_y = tracking_loader.load_test_data(0,-1)
 #对训练集进行拆分
 trd_X0, trd_X1, trd_y0, trd_y1 = train_test_split(trd_X, trd_y, test_size=0.30, random_state=11) #将训练数据分成训练和验证
 
-svc = my_sklearn.modle(trd_X0, trd_y0)
+svc = my_sklearn.modle()
+svc.in_clf()
+#svc.train(trd_X0,trd_y0)
 svc.evaluate(trd_X1, trd_y1)
 result_svc = svc.predict(test_X)
 tracking_loader.save_data(result_svc, test_y) #保存结果
