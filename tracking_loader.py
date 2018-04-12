@@ -89,40 +89,42 @@ def load(t,n):
     if n == 0: #一次全部读取
         df = pd.read_csv(t) #读取数据
     elif n == -1: #分次全部读取数据，应用于较大数据
-        f = open(t)
-        reader = pd.read_csv(f, sep=',', iterator=True)
-        loop = True
-        chunkSize = 100000 #读取数据长度
-        chunks = []
-        i = 1
-        while loop:
-            try:
-                chunk = reader.get_chunk(chunkSize)
-                chunks.append(chunk)
-                i = i+1
-                print("load...{0}".format(i))
-            except StopIteration:
-                loop = False
-                print("Iteration is stopped.")
-        df = pd.concat(chunks, ignore_index=True)
+        with open(t) as f:
+            reader = pd.read_csv(f, sep=',', iterator=True)
+            loop = True
+            chunkSize = 100000 #读取数据长度
+            chunks = []
+            i = 1
+            while loop:
+                try:
+                    chunk = reader.get_chunk(chunkSize)
+                    chunks.append(chunk)
+                    i = i+1
+                    print("load...{0}".format(i))
+                except StopIteration:
+                    loop = False
+                    print("Iteration is stopped.")
+            f.close()
+            df = pd.concat(chunks, ignore_index=True)
     else: #只读取数据的一部分
-        f = open(t)
-        reader = pd.read_csv(f, sep=',', iterator=True)
-        loop = True
-        chunkSize = 10000 #读取数据长度
-        chunks = []
-        while loop:
-            try:
-                chunk = reader.get_chunk(chunkSize)
-                chunks.append(chunk)
-                n = n -1
-                if n<=0:
-                    break
-                print("load...{0}".format(n))
-            except StopIteration:
-                loop = False
-                print("Iteration is stopped.")
-        df = pd.concat(chunks, ignore_index=True)
+        with open(t) as f:
+            reader = pd.read_csv(f, sep=',', iterator=True)
+            loop = True
+            chunkSize = 10000 #读取数据长度
+            chunks = []
+            while loop:
+                try:
+                    chunk = reader.get_chunk(chunkSize)
+                    chunks.append(chunk)
+                    n = n -1
+                    if n<=0:
+                        break
+                    print("load...{0}".format(n))
+                except StopIteration:
+                    loop = False
+                    print("Iteration is stopped.")
+            f.close()
+            df = pd.concat(chunks, ignore_index=True)
     return df
 
 def save_data(X, y):
@@ -131,23 +133,24 @@ def save_data(X, y):
 
 def split_csvfile(filename):
     name = filename.split('.')[0]
-    f = open(filename)
-    reader = pd.read_csv(f, sep=',', iterator=True)
-    loop = True
-    chunkSize = 10000 #读取数据长度
-    i = 0
-    while loop:
-        try:
-            print("save...{0}".format(i))
-            chunk = reader.get_chunk(chunkSize)
-            outname = name + str(i) + '.csv'
-            chunk.to_csv(outname, index=False)
-            i = i+1 
-        except StopIteration:
-            loop = False
-            print("Iteration is stopped.")
+    with open(filename) as f:
+        reader = pd.read_csv(f, sep=',', iterator=True)
+        loop = True
+        chunkSize = 100000 #读取数据长度
+        i = 0
+        while loop:
+            try:
+                print("save...{0}".format(i))
+                chunk = reader.get_chunk(chunkSize)
+                outname = name + str(i) + '.csv'
+                chunk.to_csv(outname, index=False)
+                i = i+1 
+            except StopIteration:
+                loop = False
+                print("Iteration is stopped.")
+        f.close()
 
-#split_csvfile('TalkingDataAdTracking/data/train_sample.csv')
+#split_csvfile('G:/TalkingDataAdTracking/train.csv')
 
 def save_error(X):
     with open('Titanic/data/error.csv',"w") as csvfile: 

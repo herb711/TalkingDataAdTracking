@@ -4,30 +4,43 @@ import tracking_loader
 import network
 import my_sklearn
 from sklearn.model_selection import train_test_split
+import time
+
+print("------------------------------------------------------------------")
+t_start = time.time()
 
 txt_traindata = 'TalkingDataAdTracking/data/train_sample.csv'
-txt_batch_traindata = 'TalkingDataAdTracking/data/train_sample'
-txt_testdata = 'G:/TalkingDataAdTracking/test.csv'
-
-# 将数据集拆分成两个集合：训练集、测试集
-trd_X, trd_y = tracking_loader.load_train_data(txt_traindata,1)
-#test_X, test_y = tracking_loader.load_test_data(txt_testdata)
+txt_batch_traindata = 'G:/TalkingDataAdTracking/train'
+# 导入训练集
+trd_X, trd_y = tracking_loader.load_train_data(txt_traindata,-1)
 #对训练集进行拆分
-trd_X0, trd_X1, trd_y0, trd_y1 = train_test_split(trd_X, trd_y, test_size=0.30, random_state=11) #将训练数据分成训练和验证
+#trd_X0, trd_X1, trd_y0, trd_y1 = train_test_split(trd_X, trd_y, test_size=0.30, random_state=11) #将训练数据分成训练和验证
 
+#生成模型
 svc = my_sklearn.modle(2)
-#svc.in_clf()
-for i in range(10):
+#导入模型
+svc.in_clf()
+#训练模型
+#svc.train(trd_X0,trd_y0)
+'''
+#增量训练模型
+for i in range(1850):
     filename = txt_batch_traindata + str(i) + '.csv'
     X, y = tracking_loader.load_train_data(filename)
     svc.train_batch(X, y, 2, i)
-#svc.train(trd_X0,trd_y0)
-svc.evaluate(trd_X1, trd_y1)
+print("train...ok")
+'''
+#评估模型
+svc.evaluate(trd_X, trd_y)
+svc.evaluate2(trd_X, trd_y)
 
-'TalkingDataAdTracking/data/train_sample.csv'
-#result_svc = svc.predict(test_X)
-#tracking_loader.save_data(result_svc, test_y) #保存结果
-
+'''
+#预测结果
+txt_testdata = 'G:/TalkingDataAdTracking/test.csv'
+test_X, test_y = tracking_loader.load_test_data(txt_testdata)
+result_svc = svc.predict(test_X)
+tracking_loader.save_data(result_svc, test_y) #保存结果
+'''
 
 '''
 #生成逻辑回归对象 并生成模型
@@ -54,3 +67,5 @@ result2 = net.predict(test_X) #进行预测
 result_last = result2
 tracking_loader.save_data(result_last, test_y) #保存结果
 '''
+t_end = time.time()
+print('end...{0:.1f}s'.format(t_end-t_start))

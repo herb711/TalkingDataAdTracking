@@ -44,11 +44,11 @@ class modle(object):
         
     def in_clf(self):
         #导入模型
-        self.clf = joblib.load('TalkingDataAdTracking/data/svm.pkl') 
+        self.clf = joblib.load('TalkingDataAdTracking/data/sgd.pkl') 
         print('in_clf...ok')
 
     def out_clf(self): #保存模型  
-        joblib.dump(self.clf, 'TalkingDataAdTracking/data/svm.pkl')
+        joblib.dump(self.clf, 'TalkingDataAdTracking/data/sgd.pkl')
         print('out_clf...ok')
 
 
